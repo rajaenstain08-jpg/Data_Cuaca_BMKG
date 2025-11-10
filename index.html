@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prakiraan Cuaca Kemayoran (BMKG)</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f8f9fa; /* Warna latar belakang ringan */
+        }
+        .weather-card {
+            border: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .weather-card:hover {
+            transform: translateY(-3px);
+        }
+        .weather-icon {
+            width: 50px;
+            height: 50px;
+        }
+        .weather-time {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+
+    <button type="button" class="btn btn-primary btn-lg" id="showModalBtn">
+        Tampilkan Prakiraan Cuaca Kemayoran
+    </button>
+
+    <div class="modal fade" id="weatherModal" tabindex="-1" aria-labelledby="weatherModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="weatherModalLabel">Prakiraan Cuaca BMKG</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h4 class="text-center mb-4" id="lokasiTitle"></h4>
+                    
+                    <div id="weatherContent" class="row row-cols-1 row-cols-md-3 g-4">
+                        </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+    <script>
+        // Data JSON yang Anda sediakan (disimpan sebagai objek JavaScript)
+        const rawData = {
+            "lokasi": {
+                "adm1": "31",
+                "adm2": "31.71",
+                "adm3": "31.71.03",
+                "adm4": "31.71.03.1001",
+                "provinsi": "DKI Jakarta",
+                "kotkab": "Kota Adm. Jakarta Pusat",
+                "kecamatan": "Kemayoran",
+                "desa": "Kemayoran",
+                "lon": 106.8453837867,
+                "lat": -6.1647214778,
+                "timezone": "Asia/Jakarta"
+            },
+            "data": [
+                {
+                    "lokasi": {
+                        "adm1": "31",
+                        "adm2": "31.71",
+                        "adm3": "31.71.03",
+                        "adm4": "31.71.03.1001",
+                        "provinsi": "DKI Jakarta",
+                        "kotkab": "Kota Adm. Jakarta Pusat",
+                        "kecamatan": "Kemayoran",
+                        "desa": "Kemayoran",
+                        "lon": 106.8453837867,
+                        "lat": -6.1647214778,
+                        "timezone": "+0700",
+                        "type": "adm4"
+                    },
+                    "cuaca": [
+                        [
+                            // Data cuaca hari pertama (indeks 0)
+                            {
+                                "datetime": "2025-11-10T03:00:00Z",
+                                "t": 32,
+                                "tcc": 99,
+                                "tp": 1.1,
+                                "weather": 61,
+                                "weather_desc": "Hujan Ringan",
+                                "weather_desc_en": "Light Rain",
+                                "wd_deg": 258,
+                                "wd": "SW",
+                                "wd_to": "NE",
+                                "ws": 13.2,
+                                "hu": 59,
+                                "vs": 33324,
+                                "vs_text": "> 10 km",
+                                "time_index": "2-3",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/hujan ringan-am.svg",
+                                "utc_datetime": "2025-11-10 03:00:00",
+                                "local_datetime": "2025-11-10 10:00:00"
+                            },
+                            {
+                                "datetime": "2025-11-10T06:00:00Z",
+                                "t": 31,
+                                "tcc": 99,
+                                "tp": 0.8,
+                                "weather": 3,
+                                "weather_desc": "Berawan",
+                                "weather_desc_en": "Mostly Cloudy",
+                                "wd_deg": 262,
+                                "wd": "SW",
+                                "wd_to": "NE",
+                                "ws": 14.9,
+                                "hu": 64,
+                                "vs": 17151,
+                                "vs_text": "> 10 km",
+                                "time_index": "5-6",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/berawan-am.svg",
+                                "utc_datetime": "2025-11-10 06:00:00",
+                                "local_datetime": "2025-11-10 13:00:00"
+                            },
+                            {
+                                "datetime": "2025-11-10T09:00:00Z",
+                                "t": 28,
+                                "tcc": 100,
+                                "tp": 0,
+                                "weather": 3,
+                                "weather_desc": "Berawan",
+                                "weather_desc_en": "Mostly Cloudy",
+                                "wd_deg": 260,
+                                "wd": "SW",
+                                "wd_to": "NE",
+                                "ws": 14.5,
+                                "hu": 73,
+                                "vs": 12533,
+                                "vs_text": "> 10 km",
+                                "time_index": "8-9",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/berawan-am.svg",
+                                "utc_datetime": "2025-11-10 09:00:00",
+                                "local_datetime": "2025-11-10 16:00:00"
+                            },
+                            {
+                                "datetime": "2025-11-10T12:00:00Z",
+                                "t": 27,
+                                "tcc": 99,
+                                "tp": 0,
+                                "weather": 3,
+                                "weather_desc": "Berawan",
+                                "weather_desc_en": "Mostly Cloudy",
+                                "wd_deg": 259,
+                                "wd": "SW",
+                                "wd_to": "NE",
+                                "ws": 10.6,
+                                "hu": 79,
+                                "vs": 29343,
+                                "vs_text": "> 10 km",
+                                "time_index": "11-12",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/berawan-pm.svg",
+                                "utc_datetime": "2025-11-10 12:00:00",
+                                "local_datetime": "2025-11-10 19:00:00"
+                            },
+                            {
+                                "datetime": "2025-11-10T15:00:00Z",
+                                "t": 26,
+                                "tcc": 100,
+                                "tp": 0,
+                                "weather": 3,
+                                "weather_desc": "Berawan",
+                                "weather_desc_en": "Mostly Cloudy",
+                                "wd_deg": 262,
+                                "wd": "SW",
+                                "wd_to": "NE",
+                                "ws": 8.1,
+                                "hu": 84,
+                                "vs": 26052,
+                                "vs_text": "> 10 km",
+                                "time_index": "14-15",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/berawan-pm.svg",
+                                "utc_datetime": "2025-11-10 15:00:00",
+                                "local_datetime": "2025-11-10 22:00:00"
+                            }
+                        ],
+                        [
+                            // Data cuaca hari kedua (indeks 1) dan seterusnya...
+                            {
+                                "datetime": "2025-11-10T18:00:00Z",
+                                "t": 26,
+                                "tcc": 100,
+                                "tp": 0,
+                                "weather": 3,
+                                "weather_desc": "Berawan",
+                                "weather_desc_en": "Mostly Cloudy",
+                                "wd_deg": 258,
+                                "wd": "SW",
+                                "wd_to": "NE",
+                                "ws": 7,
+                                "hu": 86,
+                                "vs": 27681,
+                                "vs_text": "> 10 km",
+                                "time_index": "17-18",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/berawan-pm.svg",
+                                "utc_datetime": "2025-11-10 18:00:00",
+                                "local_datetime": "2025-11-11 01:00:00"
+                            },
+                            {
+                                "datetime": "2025-11-10T21:00:00Z",
+                                "t": 26,
+                                "tcc": 100,
+                                "tp": 0,
+                                "weather": 3,
+                                "weather_desc": "Berawan",
+                                "weather_desc_en": "Mostly Cloudy",
+                                "wd_deg": 233,
+                                "wd": "SW",
+                                "wd_to": "NE",
+                                "ws": 8.8,
+                                "hu": 85,
+                                "vs": 15641,
+                                "vs_text": "> 10 km",
+                                "time_index": "20-21",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/berawan-pm.svg",
+                                "utc_datetime": "2025-11-10 21:00:00",
+                                "local_datetime": "2025-11-11 04:00:00"
+                            },
+                            {
+                                "datetime": "2025-11-11T00:00:00Z",
+                                "t": 28,
+                                "tcc": 100,
+                                "tp": 0.4,
+                                "weather": 3,
+                                "weather_desc": "Berawan",
+                                "weather_desc_en": "Mostly Cloudy",
+                                "wd_deg": 265,
+                                "wd": "SW",
+                                "wd_to": "NE",
+                                "ws": 9,
+                                "hu": 76,
+                                "vs": 24610,
+                                "vs_text": "> 10 km",
+                                "time_index": "23-24",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/berawan-am.svg",
+                                "utc_datetime": "2025-11-11 00:00:00",
+                                "local_datetime": "2025-11-11 07:00:00"
+                            },
+                            {
+                                "datetime": "2025-11-11T03:00:00Z",
+                                "t": 30,
+                                "tcc": 100,
+                                "tp": 3.4,
+                                "weather": 61,
+                                "weather_desc": "Hujan Ringan",
+                                "weather_desc_en": "Light Rain",
+                                "wd_deg": 283,
+                                "wd": "W",
+                                "wd_to": "E",
+                                "ws": 8.8,
+                                "hu": 70,
+                                "vs": 12032,
+                                "vs_text": "> 10 km",
+                                "time_index": "26-27",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/hujan ringan-am.svg",
+                                "utc_datetime": "2025-11-11 03:00:00",
+                                "local_datetime": "2025-11-11 10:00:00"
+                            },
+                            {
+                                "datetime": "2025-11-11T06:00:00Z",
+                                "t": 27,
+                                "tcc": 100,
+                                "tp": 2.3,
+                                "weather": 61,
+                                "weather_desc": "Hujan Ringan",
+                                "weather_desc_en": "Light Rain",
+                                "wd_deg": 297,
+                                "wd": "W",
+                                "wd_to": "E",
+                                "ws": 11.4,
+                                "hu": 81,
+                                "vs": 4813,
+                                "vs_text": "< 5 km",
+                                "time_index": "29-30",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/hujan ringan-am.svg",
+                                "utc_datetime": "2025-11-11 06:00:00",
+                                "local_datetime": "2025-11-11 13:00:00"
+                            },
+                            {
+                                "datetime": "2025-11-11T09:00:00Z",
+                                "t": 26,
+                                "tcc": 100,
+                                "tp": 0.9,
+                                "weather": 3,
+                                "weather_desc": "Berawan",
+                                "weather_desc_en": "Mostly Cloudy",
+                                "wd_deg": 282,
+                                "wd": "W",
+                                "wd_to": "E",
+                                "ws": 10.5,
+                                "hu": 88,
+                                "vs": 5060,
+                                "vs_text": "< 6 km",
+                                "time_index": "32-33",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/berawan-am.svg",
+                                "utc_datetime": "2025-11-11 09:00:00",
+                                "local_datetime": "2025-11-11 16:00:00"
+                            },
+                            {
+                                "datetime": "2025-11-11T12:00:00Z",
+                                "t": 25,
+                                "tcc": 100,
+                                "tp": 0.2,
+                                "weather": 3,
+                                "weather_desc": "Berawan",
+                                "weather_desc_en": "Mostly Cloudy",
+                                "wd_deg": 222,
+                                "wd": "S",
+                                "wd_to": "N",
+                                "ws": 4.9,
+                                "hu": 92,
+                                "vs": 6254,
+                                "vs_text": "< 7 km",
+                                "time_index": "35-36",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/berawan-pm.svg",
+                                "utc_datetime": "2025-11-11 12:00:00",
+                                "local_datetime": "2025-11-11 19:00:00"
+                            },
+                            {
+                                "datetime": "2025-11-11T15:00:00Z",
+                                "t": 25,
+                                "tcc": 100,
+                                "tp": 0.1,
+                                "weather": 3,
+                                "weather_desc": "Berawan",
+                                "weather_desc_en": "Mostly Cloudy",
+                                "wd_deg": 264,
+                                "wd": "SW",
+                                "wd_to": "NE",
+                                "ws": 3.3,
+                                "hu": 93,
+                                "vs": 14351,
+                                "vs_text": "> 10 km",
+                                "time_index": "38-39",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/berawan-pm.svg",
+                                "utc_datetime": "2025-11-11 15:00:00",
+                                "local_datetime": "2025-11-11 22:00:00"
+                            }
+                        ],
+                        [
+                            // Data cuaca hari ketiga (indeks 2)
+                            {
+                                "datetime": "2025-11-11T18:00:00Z",
+                                "t": 24,
+                                "tcc": 100,
+                                "tp": 0.1,
+                                "weather": 3,
+                                "weather_desc": "Berawan",
+                                "weather_desc_en": "Mostly Cloudy",
+                                "wd_deg": 263,
+                                "wd": "SW",
+                                "wd_to": "NE",
+                                "ws": 8.2,
+                                "hu": 94,
+                                "vs": 7095,
+                                "vs_text": "< 8 km",
+                                "time_index": "41-42",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/berawan-pm.svg",
+                                "utc_datetime": "2025-11-11 18:00:00",
+                                "local_datetime": "2025-11-12 01:00:00"
+                            },
+                            {
+                                "datetime": "2025-11-11T21:00:00Z",
+                                "t": 25,
+                                "tcc": 100,
+                                "tp": 0,
+                                "weather": 3,
+                                "weather_desc": "Berawan",
+                                "weather_desc_en": "Mostly Cloudy",
+                                "wd_deg": 267,
+                                "wd": "SW",
+                                "wd_to": "NE",
+                                "ws": 9.9,
+                                "hu": 92,
+                                "vs": 19143,
+                                "vs_text": "> 10 km",
+                                "time_index": "44-45",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/berawan-pm.svg",
+                                "utc_datetime": "2025-11-11 21:00:00",
+                                "local_datetime": "2025-11-12 04:00:00"
+                            },
+                            {
+                                "datetime": "2025-11-12T00:00:00Z",
+                                "t": 26,
+                                "tcc": 100,
+                                "tp": 0.2,
+                                "weather": 3,
+                                "weather_desc": "Berawan",
+                                "weather_desc_en": "Mostly Cloudy",
+                                "wd_deg": 272,
+                                "wd": "W",
+                                "wd_to": "E",
+                                "ws": 12.2,
+                                "hu": 86,
+                                "vs": 11819,
+                                "vs_text": "> 10 km",
+                                "time_index": "47-48",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/berawan-am.svg",
+                                "utc_datetime": "2025-11-12 00:00:00",
+                                "local_datetime": "2025-11-12 07:00:00"
+                            },
+                            {
+                                "datetime": "2025-11-12T03:00:00Z",
+                                "t": 30,
+                                "tcc": 100,
+                                "tp": 0.2,
+                                "weather": 3,
+                                "weather_desc": "Berawan",
+                                "weather_desc_en": "Mostly Cloudy",
+                                "wd_deg": 264,
+                                "wd": "SW",
+                                "wd_to": "NE",
+                                "ws": 11.6,
+                                "hu": 74,
+                                "vs": 29437,
+                                "vs_text": "> 10 km",
+                                "time_index": "50-51",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/berawan-am.svg",
+                                "utc_datetime": "2025-11-12 03:00:00",
+                                "local_datetime": "2025-11-12 10:00:00"
+                            },
+                            {
+                                "datetime": "2025-11-12T06:00:00Z",
+                                "t": 29,
+                                "tcc": 99,
+                                "tp": 1.2,
+                                "weather": 61,
+                                "weather_desc": "Hujan Ringan",
+                                "weather_desc_en": "Light Rain",
+                                "wd_deg": 264,
+                                "wd": "SW",
+                                "wd_to": "NE",
+                                "ws": 11.6,
+                                "hu": 74,
+                                "vs": 29437,
+                                "vs_text": "> 10 km",
+                                "time_index": "53-54",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/hujan ringan-am.svg",
+                                "utc_datetime": "2025-11-12 06:00:00",
+                                "local_datetime": "2025-11-12 13:00:00"
+                            },
+                            {
+                                "datetime": "2025-11-12T09:00:00Z",
+                                "t": 27,
+                                "tcc": 100,
+                                "tp": 1.2,
+                                "weather": 61,
+                                "weather_desc": "Hujan Ringan",
+                                "weather_desc_en": "Light Rain",
+                                "wd_deg": 267,
+                                "wd": "SW",
+                                "wd_to": "NE",
+                                "ws": 11.5,
+                                "hu": 81,
+                                "vs": 20493,
+                                "vs_text": "> 10 km",
+                                "time_index": "56-57",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/hujan ringan-am.svg",
+                                "utc_datetime": "2025-11-12 09:00:00",
+                                "local_datetime": "2025-11-12 16:00:00"
+                            },
+                            {
+                                "datetime": "2025-11-12T12:00:00Z",
+                                "t": 25,
+                                "tcc": 100,
+                                "tp": 0,
+                                "weather": 3,
+                                "weather_desc": "Berawan",
+                                "weather_desc_en": "Mostly Cloudy",
+                                "wd_deg": 267,
+                                "wd": "SW",
+                                "wd_to": "NE",
+                                "ws": 11.5,
+                                "hu": 87,
+                                "vs": 20493,
+                                "vs_text": "> 10 km",
+                                "time_index": "59-60",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/berawan-pm.svg",
+                                "utc_datetime": "2025-11-12 12:00:00",
+                                "local_datetime": "2025-11-12 19:00:00"
+                            },
+                            {
+                                "datetime": "2025-11-12T15:00:00Z",
+                                "t": 25,
+                                "tcc": 100,
+                                "tp": 0,
+                                "weather": 3,
+                                "weather_desc": "Berawan",
+                                "weather_desc_en": "Mostly Cloudy",
+                                "wd_deg": 233,
+                                "wd": "SW",
+                                "wd_to": "NE",
+                                "ws": 4.3,
+                                "hu": 90,
+                                "vs": 24847,
+                                "vs_text": "> 10 km",
+                                "time_index": "62-63",
+                                "analysis_date": "2025-11-10T00:00:00",
+                                "image": "https://api-apps.bmkg.go.id/storage/icon/cuaca/berawan-pm.svg",
+                                "utc_datetime": "2025-11-12 15:00:00",
+                                "local_datetime": "2025-11-12 22:00:00"
+                            }
+                        ]
+                    ]
+                }
+            ]
+        };
+
+        // Fungsi untuk mengolah dan menampilkan data
+        function displayWeatherData() {
+            const lokasi = rawData.lokasi;
+            const cuacaData = rawData.data[0].cuaca;
+            const weatherContent = document.getElementById('weatherContent');
+            const lokasiTitle = document.getElementById('lokasiTitle');
+            
+            // 1. Set Judul Lokasi
+            lokasiTitle.textContent = `${lokasi.desa}, ${lokasi.kecamatan}, ${lokasi.kotkab}`;
+
+            let htmlContent = '';
+            
+            // 2. Loop melalui setiap hari (array pertama)
+            cuacaData.forEach((dayData, dayIndex) => {
+                // Tambahkan header untuk setiap hari
+                if (dayIndex > 0) {
+                     // Garis pemisah antar hari (Opsional, tapi membantu)
+                    htmlContent += `<div class="col-12"><hr class="my-4"></div>`;
+                }
+
+                dayData.forEach(hourData => {
+                    // Ekstrak waktu lokal dari string local_datetime
+                    const localTime = new Date(hourData.local_datetime).toLocaleTimeString('id-ID', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    // Ekstrak tanggal dari string local_datetime
+                    const localDate = new Date(hourData.local_datetime).toLocaleDateString('id-ID', {
+                        weekday: 'short', 
+                        day: 'numeric', 
+                        month: 'short'
+                    });
+
+                    // Membuat kartu (card) untuk setiap jam
+                    htmlContent += `
+                        <div class="col-sm-6 col-md-4 col-lg-3">
+                            <div class="card h-100 weather-card text-center border-0 shadow-sm">
+                                <div class="card-body">
+                                    <p class="card-text text-muted small">${localDate}</p>
+                                    <h5 class="weather-time">${localTime} WIB</h5>
+                                    
+                                    <img src="${hourData.image}" class="weather-icon my-2" alt="${hourData.weather_desc}">
+                                    
+                                    <h6 class="card-title text-primary">${hourData.weather_desc}</h6>
+                                    
+                                    <p class="card-text mb-1">
+                                        🌡️ **${hourData.t}°C** | 💧 ${hourData.hu}%
+                                    </p>
+                                    <p class="card-text small text-secondary">
+                                        Angin: ${hourData.wd} (${hourData.ws} km/jam)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+
+            weatherContent.innerHTML = htmlContent;
+
+            // 3. Tampilkan Modal setelah konten terisi
+            const modalElement = document.getElementById('weatherModal');
+            const weatherModal = new bootstrap.Modal(modalElement);
+            weatherModal.show();
+        }
+
+        // Event listener untuk tombol
+        document.getElementById('showModalBtn').addEventListener('click', displayWeatherData);
+    </script>
+
+</body>
+</html>
